@@ -40,8 +40,6 @@ All colors MUST be HSL.
     --input: 240 8% 92%;
     --ring: 260 60% 45%;
 
-    --radius: 0.75rem;
-
     /* Chat-specific colors */
     --chat-bubble-sent: 260 60% 45%;
     --chat-bubble-received: 240 8% 95%;
@@ -64,43 +62,43 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 260 25% 8%;
-    --foreground: 240 8% 95%;
+    --background: 0 0% 5%; /* Deep black */
+    --foreground: 0 0% 95%; /* Off-white */
 
-    --card: 260 20% 12%;
-    --card-foreground: 240 8% 95%;
+    --card: 0 0% 10%; /* Dark gray */
+    --card-foreground: 0 0% 95%;
 
-    --popover: 260 20% 12%;
-    --popover-foreground: 240 8% 95%;
+    --popover: 0 0% 10%; /* Dark gray */
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 260 70% 55%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 260 80% 70%;
+    --primary: 25 95% 50%; /* Vibrant orange */
+    --primary-foreground: 0 0% 100%; /* White */
+    --primary-glow: 25 95% 65%; /* Brighter orange for glow */
 
-    --secondary: 40 90% 55%;
-    --secondary-foreground: 260 25% 8%;
+    --secondary: 35 90% 60%; /* Slightly different orange */
+    --secondary-foreground: 0 0% 5%; /* Dark text on secondary */
 
-    --muted: 260 15% 18%;
-    --muted-foreground: 240 8% 65%;
+    --muted: 0 0% 20%; /* Medium dark gray */
+    --muted-foreground: 0 0% 70%; /* Light gray text */
 
-    --accent: 280 70% 60%;
+    --accent: 30 95% 65%; /* Another vibrant orange */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 72% 55%; /* Red for errors */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 260 15% 20%;
-    --input: 260 15% 22%;
-    --ring: 260 70% 55%;
+    --border: 0 0% 25%;
+    --input: 0 0% 30%;
+    --ring: 25 95% 50%; /* Primary orange */
 
-    --chat-bubble-sent: 260 70% 55%;
-    --chat-bubble-received: 260 15% 18%;
-    --chat-background: 260 20% 10%;
+    --chat-bubble-sent: 25 95% 50%; /* Primary orange */
+    --chat-bubble-received: 0 0% 20%; /* Muted dark gray */
+    --chat-background: 0 0% 8%; /* Slightly darker than card */
 
-    --shadow-sm: 0 2px 8px hsl(0 0% 0% / 0.2);
-    --shadow-md: 0 4px 16px hsl(0 0% 0% / 0.3);
-    --shadow-lg: 0 8px 32px hsl(0 0% 0% / 0.4);
-    --shadow-glow: 0 0 24px hsl(260 80% 70% / 0.4);
+    --shadow-sm: 0 2px 8px hsl(25 95% 50% / 0.15);
+    --shadow-md: 0 4px 16px hsl(25 95% 50% / 0.25);
+    --shadow-lg: 0 8px 32px hsl(25 95% 50% / 0.35);
+    --shadow-glow: 0 0 24px hsl(25 95% 65% / 0.5);
   }
 }
 
