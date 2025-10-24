@@ -30,17 +30,27 @@ const Auth = () => {
         toast.success("Login realizado com sucesso!");
         navigate("/");
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { nome },
-            emailRedirectTo: `${window.location.origin}/profile-setup`,
+            data: { nome }, // Keep nome in user_metadata for initial signup
           },
         });
-        if (error) throw error;
-        toast.success("Conta criada! Escolha seu perfil.");
-        navigate("/profile-setup");
+        if (signUpError) throw signUpError;
+
+        // If signup is successful, create the profile with role 'aluno'
+        if (data.user) {
+          const { error: profileError } = await supabase.from("profiles").insert({
+            id: data.user.id,
+            nome: nome,
+            role: "aluno", // Set default role to 'aluno'
+          });
+          if (profileError) throw profileError;
+        }
+        
+        toast.success("Conta criada com sucesso! Bem-vindo(a) ao JourneyApp.");
+        navigate("/"); // Redirect directly to home page
       }
     } catch (error: any) {
       toast.error(error.message || "Erro na autenticação");
