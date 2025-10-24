@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, MessageSquare, ClipboardList, Calendar, Plus, UserCog } from "lucide-react"; // Adicionado UserCog
+import { LogOut, MessageSquare, ClipboardList, Calendar, Plus, Pencil } from "lucide-react"; // Adicionado Pencil, removido UserCog
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 
@@ -12,8 +12,8 @@ interface Profile {
   nome: string;
   avatar_url: string | null;
   role: "aluno" | "professor";
-  cidade: string | null; // Adicionado
-  curiosidade: string | null; // Adicionado
+  cidade: string | null;
+  curiosidade: string | null;
 }
 
 interface Group {
@@ -159,6 +159,9 @@ const Home = () => {
               <h2 className="font-semibold">{profile?.nome}</h2>
               <p className="text-xs text-muted-foreground capitalize">{profile?.role}</p>
             </div>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/profile-edit")} className="ml-2">
+              <Pencil className="w-5 h-5 text-muted-foreground" />
+            </Button>
           </div>
           <Button variant="ghost" size="icon" onClick={handleLogout}>
             <LogOut className="w-5 h-5" />
@@ -169,7 +172,7 @@ const Home = () => {
       {/* Main Content */}
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Quick Actions */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3"> {/* Ajustado para 2 ou 3 colunas */}
           <Button
             variant="outline"
             className="flex-col h-auto py-4 space-y-2"
@@ -185,14 +188,6 @@ const Home = () => {
           >
             <Calendar className="w-6 h-6 text-secondary" />
             <span className="text-xs">Agendas</span>
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-col h-auto py-4 space-y-2"
-            onClick={() => navigate("/profile-edit")} // Botão para editar perfil
-          >
-            <UserCog className="w-6 h-6 text-accent" />
-            <span className="text-xs">Editar Perfil</span>
           </Button>
           {profile?.role === "professor" && (
             <Button
