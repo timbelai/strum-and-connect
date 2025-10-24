@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, MessageSquare, ClipboardList, Calendar, Plus } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LogOut, MessageSquare, ClipboardList, Calendar, Plus, UserCog } from "lucide-react"; // Adicionado UserCog
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 
@@ -12,6 +12,8 @@ interface Profile {
   nome: string;
   avatar_url: string | null;
   role: "aluno" | "professor";
+  cidade: string | null; // Adicionado
+  curiosidade: string | null; // Adicionado
 }
 
 interface Group {
@@ -46,16 +48,14 @@ const Home = () => {
         .single();
 
       if (error) {
-        // This case should ideally not happen after removing profile-setup,
-        // but keeping it for robustness if profile creation fails silently.
         console.error("Profile not found, redirecting to auth:", error);
         navigate("/auth");
         return;
       }
 
       setProfile(data);
-      await createDefaultGroups(); // Create default groups before fetching all groups
-      await fetchGroups(); // Fetch groups after defaults are ensured
+      await createDefaultGroups();
+      await fetchGroups();
     } catch (error) {
       console.error("Auth or data fetch error:", error);
       toast.error("Erro ao carregar dados. Tente novamente.");
@@ -147,9 +147,13 @@ const Home = () => {
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Avatar className="w-10 h-10 border-2 border-primary/20">
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                {profile?.nome?.[0]?.toUpperCase()}
-              </AvatarFallback>
+              {profile?.avatar_url ? (
+                <AvatarImage src={profile.avatar_url} alt="Avatar" />
+              ) : (
+                <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                  {profile?.nome?.[0]?.toUpperCase()}
+                </AvatarFallback>
+              )}
             </Avatar>
             <div>
               <h2 className="font-semibold">{profile?.nome}</h2>
@@ -181,6 +185,14 @@ const Home = () => {
           >
             <Calendar className="w-6 h-6 text-secondary" />
             <span className="text-xs">Agendas</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-col h-auto py-4 space-y-2"
+            onClick={() => navigate("/profile-edit")} // Botão para editar perfil
+          >
+            <UserCog className="w-6 h-6 text-accent" />
+            <span className="text-xs">Editar Perfil</span>
           </Button>
           {profile?.role === "professor" && (
             <Button

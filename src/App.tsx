@@ -9,6 +9,7 @@ import Chat from "./pages/Chat";
 import Tasks from "./pages/Tasks";
 import SubmitTask from "./pages/SubmitTask";
 import Meetings from "./pages/Meetings";
+import ProfileEdit from "./pages/ProfileEdit"; // Importar o novo componente
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/submit-task" element={<SubmitTask />} />
           <Route path="/meetings" element={<Meetings />} />
+          <Route path="/profile-edit" element={<ProfileEdit />} /> {/* Nova rota */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

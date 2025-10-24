@@ -117,6 +117,8 @@ export type Database = {
           id: string
           nome: string
           role: Database["public"]["Enums"]["app_role"]
+          cidade: string | null // Added
+          curiosidade: string | null // Added
         }
         Insert: {
           avatar_url?: string | null
@@ -124,6 +126,8 @@ export type Database = {
           id: string
           nome: string
           role: Database["public"]["Enums"]["app_role"]
+          cidade?: string | null // Added
+          curiosidade?: string | null // Added
         }
         Update: {
           avatar_url?: string | null
@@ -131,6 +135,8 @@ export type Database = {
           id?: string
           nome?: string
           role?: Database["public"]["Enums"]["app_role"]
+          cidade?: string | null // Added
+          curiosidade?: string | null // Added
         }
         Relationships: []
       }
