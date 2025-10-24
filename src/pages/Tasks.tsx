@@ -9,6 +9,7 @@ import { ArrowLeft, ExternalLink, CheckCircle, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import SubmitTaskDialog from "@/components/SubmitTaskDialog"; // Importar o novo componente de diálogo
 
 interface Task {
   id: string;
@@ -27,6 +28,7 @@ const Tasks = () => {
   const [profile, setProfile] = useState<any>(null);
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
   const [comment, setComment] = useState("");
+  const [isSubmitTaskDialogOpen, setIsSubmitTaskDialogOpen] = useState(false); // Novo estado para o diálogo
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -100,6 +102,10 @@ const Tasks = () => {
     fetchTasks(profile);
   };
 
+  const handleTaskSubmitted = () => {
+    fetchTasks(profile); // Refresh tasks after a new one is submitted
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       {/* Header */}
@@ -114,7 +120,7 @@ const Tasks = () => {
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         {profile?.role === "aluno" && (
           <Button
-            onClick={() => navigate("/submit-task")}
+            onClick={() => setIsSubmitTaskDialogOpen(true)} // Abre o diálogo
             className="w-full bg-gradient-to-r from-primary to-accent"
           >
             Enviar nova tarefa
@@ -206,6 +212,13 @@ const Tasks = () => {
           ))
         )}
       </main>
+
+      {/* Submit Task Dialog */}
+      <SubmitTaskDialog
+        isOpen={isSubmitTaskDialogOpen}
+        onClose={() => setIsSubmitTaskDialogOpen(false)}
+        onTaskSubmitted={handleTaskSubmitted}
+      />
     </div>
   );
 };

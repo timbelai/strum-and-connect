@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,29 +13,46 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface Group {
   id: string;
   nome: string;
 }
 
-const SubmitTask = () => {
+interface SubmitTaskDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onTaskSubmitted: () => void;
+}
+
+const SubmitTaskDialog = ({ isOpen, onClose, onTaskSubmitted }: SubmitTaskDialogProps) => {
   const [linkVideo, setLinkVideo] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string>("");
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string>("");
-  const navigate = useNavigate();
 
   useEffect(() => {
-    checkAuth();
-    fetchUserGroups();
-  }, []);
+    if (isOpen) {
+      checkAuth();
+      fetchUserGroups();
+      setLinkVideo(""); // Reset form when dialog opens
+      setSelectedGroup("");
+    }
+  }, [isOpen]);
 
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      navigate("/auth");
+      // If user is not authenticated, close dialog and let parent handle navigation
+      onClose();
       return;
     }
     setUserId(user.id);
@@ -80,7 +96,8 @@ const SubmitTask = () => {
       if (error) throw error;
 
       toast.success("Tarefa enviada com sucesso!");
-      navigate("/tasks");
+      onTaskSubmitted(); // Notify parent to refresh tasks
+      onClose(); // Close the dialog
     } catch (error: any) {
       toast.error(error.message || "Erro ao enviar tarefa");
     } finally {
@@ -89,16 +106,15 @@ const SubmitTask = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
-      <header className="bg-card border-b border-border/50 shadow-sm px-4 py-4 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/tasks")}>
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <h1 className="text-xl font-bold">Enviar Tarefa</h1>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-4 py-6">
-        <Card className="p-6">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Enviar Tarefa</DialogTitle>
+          <DialogDescription>
+            Preencha os detalhes da sua tarefa e envie para correção.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="py-4">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="link">Link do vídeo *</Label>
@@ -142,16 +158,16 @@ const SubmitTask = () => {
                 type="button"
                 variant="outline"
                 className="w-full"
-                onClick={() => navigate("/tasks")}
+                onClick={onClose}
               >
                 Cancelar
               </Button>
             </div>
           </form>
-        </Card>
-      </main>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default SubmitTask;
+export default SubmitTaskDialog;
