@@ -11,7 +11,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { format, isToday } from "date-fns";
+import { format, isToday, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BookOpen, Users, MonitorPlay, Sparkles } from "lucide-react";
 import { Enums } from "@/integrations/supabase/types";
@@ -49,13 +49,15 @@ const RegisterStudyDialog = ({ isOpen, onClose, userId }: RegisterStudyDialogPro
 
   const fetchCompletedStudies = async () => {
     setLoading(true);
-    const today = format(new Date(), "yyyy-MM-dd");
+    const todayStart = startOfDay(new Date()).toISOString();
+    const todayEnd = endOfDay(new Date()).toISOString();
+
     const { data, error } = await supabase
       .from("user_studies")
-      .select("study_type, completed_at")
+      .select("study_type") // Não precisamos de completed_at aqui, já que o filtro é por data
       .eq("user_id", userId)
-      .gte("completed_at", `${today}T00:00:00.000Z`)
-      .lte("completed_at", `${today}T23:59:59.999Z`);
+      .gte("completed_at", todayStart)
+      .lte("completed_at", todayEnd);
 
     if (error) {
       toast.error("Erro ao carregar estudos registrados.");
@@ -66,9 +68,7 @@ const RegisterStudyDialog = ({ isOpen, onClose, userId }: RegisterStudyDialogPro
 
     const todayCompleted = new Set<StudyType>();
     data.forEach((study) => {
-      if (isToday(new Date(study.completed_at))) {
-        todayCompleted.add(study.study_type);
-      }
+      todayCompleted.add(study.study_type);
     });
     setCompletedStudies(todayCompleted);
     setLoading(false);
@@ -87,19 +87,23 @@ const RegisterStudyDialog = ({ isOpen, onClose, userId }: RegisterStudyDialogPro
         const { error } = await supabase.from("user_studies").insert({
           user_id: userId,
           study_type: studyType,
+          // completed_at usará o default now() do banco de dados, que é um timestamp com fuso horário
         });
         if (error) throw error;
         setCompletedStudies((prev) => new Set(prev).add(studyType));
         toast.success(`"${studyOptions.find(o => o.value === studyType)?.label}" registrado!`);
       } else {
         // Unmark (delete)
+        const todayStart = startOfDay(new Date()).toISOString();
+        const todayEnd = endOfDay(new Date()).toISOString();
+
         const { error } = await supabase
           .from("user_studies")
           .delete()
           .eq("user_id", userId)
           .eq("study_type", studyType)
-          .gte("completed_at", format(new Date(), "yyyy-MM-dd") + "T00:00:00.000Z")
-          .lte("completed_at", format(new Date(), "yyyy-MM-dd") + "T23:59:59.999Z");
+          .gte("completed_at", todayStart)
+          .lte("completed_at", todayEnd);
         if (error) throw error;
         setCompletedStudies((prev) => {
           const newSet = new Set(prev);
