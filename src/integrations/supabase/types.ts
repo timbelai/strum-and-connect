@@ -117,8 +117,8 @@ export type Database = {
           id: string
           nome: string
           role: Database["public"]["Enums"]["app_role"]
-          cidade: string | null // Added
-          curiosidade: string | null // Added
+          cidade: string | null
+          curiosidade: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -126,8 +126,8 @@ export type Database = {
           id: string
           nome: string
           role: Database["public"]["Enums"]["app_role"]
-          cidade?: string | null // Added
-          curiosidade?: string | null // Added
+          cidade?: string | null
+          curiosidade?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -135,8 +135,8 @@ export type Database = {
           id?: string
           nome?: string
           role?: Database["public"]["Enums"]["app_role"]
-          cidade?: string | null // Added
-          curiosidade?: string | null // Added
+          cidade?: string | null
+          curiosidade?: string | null
         }
         Relationships: []
       }
@@ -195,6 +195,35 @@ export type Database = {
           },
         ]
       }
+      user_studies: {
+        Row: {
+          id: string
+          user_id: string
+          study_type: Database["public"]["Enums"]["study_type"]
+          completed_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          study_type: Database["public"]["Enums"]["study_type"]
+          completed_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          study_type?: Database["public"]["Enums"]["study_type"]
+          completed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_studies_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       video_meetings: {
         Row: {
           aluno_id: string
@@ -250,6 +279,7 @@ export type Database = {
     Enums: {
       app_role: "aluno" | "professor"
       task_status: "pendente" | "corrigida"
+      study_type: "individual" | "group" | "live" | "composition"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -379,6 +409,7 @@ export const Constants = {
     Enums: {
       app_role: ["aluno", "professor"],
       task_status: ["pendente", "corrigida"],
+      study_type: ["individual", "group", "live", "composition"],
     },
   },
 } as const

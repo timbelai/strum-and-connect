@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, MessageSquare, ClipboardList, Calendar, Plus, Pencil } from "lucide-react"; // Adicionado Pencil, removido UserCog
+import { LogOut, MessageSquare, ClipboardList, Calendar, Plus, Pencil, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
+import RegisterStudyDialog from "@/components/RegisterStudyDialog"; // Importar o novo componente
 
 interface Profile {
   id: string;
@@ -26,6 +27,7 @@ const Home = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRegisterStudyDialogOpen, setIsRegisterStudyDialogOpen] = useState(false); // Estado para o modal
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -172,7 +174,7 @@ const Home = () => {
       {/* Main Content */}
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3"> {/* Ajustado para 2 ou 3 colunas */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <Button
             variant="outline"
             className="flex-col h-auto py-4 space-y-2"
@@ -180,6 +182,14 @@ const Home = () => {
           >
             <ClipboardList className="w-6 h-6 text-primary" />
             <span className="text-xs">Tarefas</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-col h-auto py-4 space-y-2"
+            onClick={() => setIsRegisterStudyDialogOpen(true)} // Abre o modal
+          >
+            <BookOpen className="w-6 h-6 text-accent" />
+            <span className="text-xs">Registrar Estudo</span>
           </Button>
           <Button
             variant="outline"
@@ -231,6 +241,14 @@ const Home = () => {
           )}
         </div>
       </main>
+
+      {profile && (
+        <RegisterStudyDialog
+          isOpen={isRegisterStudyDialogOpen}
+          onClose={() => setIsRegisterStudyDialogOpen(false)}
+          userId={profile.id}
+        />
+      )}
     </div>
   );
 };
