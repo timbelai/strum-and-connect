@@ -28,20 +28,7 @@ const FloatingMoreActionsMenu = ({ profileRole }: FloatingMoreActionsMenuProps) 
           >
             <ClipboardList className="w-5 h-5 text-primary" />
           </Button>
-          {profileRole === "professor" && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full w-12 h-12 shadow-lg bg-card hover:bg-muted/80 transition-all duration-300"
-              onClick={() => {
-                navigate("/create-group");
-                setIsOpen(false);
-              }}
-              aria-label="Criar Grupo"
-            >
-              <Plus className="w-5 h-5 text-accent" />
-            </Button>
-          )}
+          {/* O botão "Criar Grupo" foi removido conforme a solicitação */}
         </div>
       )}
       <Button

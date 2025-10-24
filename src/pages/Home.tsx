@@ -70,7 +70,7 @@ const Home = () => {
     }
   };
 
-  const defaultGroupNames = ["Bate-Papo", "Dúvidas", "Edificação"];
+  const defaultGroupNames = ["Bate-Papo", "Dúvidas", "Edificação", "Caravanas"];
 
   const createDefaultGroups = async () => {
     const { data: existingGroups, error: fetchError } = await supabase
