@@ -10,6 +10,7 @@ import RegisterStudyDialog from "@/components/RegisterStudyDialog";
 import FloatingAgendaButton from "@/components/FloatingAgendaButton";
 import FloatingRegisterStudyButton from "@/components/FloatingRegisterStudyButton";
 import FloatingMoreActionsMenu from "@/components/FloatingMoreActionsMenu";
+import AgendaFeedDrawer from "@/components/AgendaFeedDrawer"; // Importar o novo componente
 
 interface Profile {
   id: string;
@@ -31,6 +32,7 @@ const Home = () => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRegisterStudyDialogOpen, setIsRegisterStudyDialogOpen] = useState(false);
+  const [isAgendaDrawerOpen, setIsAgendaDrawerOpen] = useState(false); // Novo estado para o Drawer da Agenda
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -208,16 +210,23 @@ const Home = () => {
       </main>
 
       {/* Floating Action Buttons */}
-      <FloatingAgendaButton />
+      <FloatingAgendaButton onOpenAgenda={() => setIsAgendaDrawerOpen(true)} />
       <FloatingRegisterStudyButton onRegisterStudyClick={() => setIsRegisterStudyDialogOpen(true)} />
       <FloatingMoreActionsMenu profileRole={profile?.role} />
 
       {profile && (
-        <RegisterStudyDialog
-          isOpen={isRegisterStudyDialogOpen}
-          onClose={() => setIsRegisterStudyDialogOpen(false)}
-          userId={profile.id}
-        />
+        <>
+          <RegisterStudyDialog
+            isOpen={isRegisterStudyDialogOpen}
+            onClose={() => setIsRegisterStudyDialogOpen(false)}
+            userId={profile.id}
+          />
+          <AgendaFeedDrawer
+            isOpen={isAgendaDrawerOpen}
+            onClose={() => setIsAgendaDrawerOpen(false)}
+            userId={profile.id}
+          />
+        </>
       )}
     </div>
   );
