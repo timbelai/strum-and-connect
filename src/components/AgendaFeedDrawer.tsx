@@ -89,7 +89,7 @@ const AgendaFeedDrawer = ({ isOpen, onClose, userId }: AgendaFeedDrawerProps) =>
 
   return (
     <Drawer open={isOpen} onOpenChange={onClose} direction="left">
-      <DrawerContent className="w-full sm:max-w-[min(50%,_400px)] h-full mt-0 rounded-none">
+      <DrawerContent className="w-full sm:max-w-[min(33.33%,_400px)] h-full mt-0 rounded-none">
         <DrawerHeader className="bg-card border-b border-border/50 shadow-sm p-4">
           <DrawerTitle className="text-xl font-bold flex items-center gap-2">
             <CalendarIcon className="w-6 h-6" /> Próximas Mentorias
