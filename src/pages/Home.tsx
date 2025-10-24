@@ -27,11 +27,11 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkAuth();
-    fetchGroups();
+    checkAuthAndFetchGroups();
   }, []);
 
-  const checkAuth = async () => {
+  const checkAuthAndFetchGroups = async () => {
+    setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -46,16 +46,53 @@ const Home = () => {
         .single();
 
       if (error) {
-        navigate("/profile-setup");
+        // This case should ideally not happen after removing profile-setup,
+        // but keeping it for robustness if profile creation fails silently.
+        console.error("Profile not found, redirecting to auth:", error);
+        navigate("/auth");
         return;
       }
 
       setProfile(data);
+      await createDefaultGroups(); // Create default groups before fetching all groups
+      await fetchGroups(); // Fetch groups after defaults are ensured
     } catch (error) {
-      console.error("Auth error:", error);
+      console.error("Auth or data fetch error:", error);
+      toast.error("Erro ao carregar dados. Tente novamente.");
       navigate("/auth");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const defaultGroupNames = ["Bate-Papo", "Dúvidas", "Edificação"];
+
+  const createDefaultGroups = async () => {
+    const { data: existingGroups, error: fetchError } = await supabase
+      .from("groups")
+      .select("nome");
+
+    if (fetchError) {
+      console.error("Error fetching existing groups:", fetchError);
+      return;
+    }
+
+    const existingGroupNames = new Set(existingGroups?.map(g => g.nome));
+    const groupsToInsert = defaultGroupNames
+      .filter(name => !existingGroupNames.has(name))
+      .map(name => ({ nome: name, descricao: `Grupo para ${name.toLowerCase()}` }));
+
+    if (groupsToInsert.length > 0) {
+      const { error: insertError } = await supabase
+        .from("groups")
+        .insert(groupsToInsert);
+
+      if (insertError) {
+        console.error("Error inserting default groups:", insertError);
+        toast.error("Erro ao criar grupos padrão.");
+      } else {
+        toast.success("Grupos padrão criados!");
+      }
     }
   };
 
