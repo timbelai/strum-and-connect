@@ -39,14 +39,28 @@ const Auth = () => {
         });
         if (signUpError) throw signUpError;
 
-        // If signup is successful, create the profile with role 'aluno'
+        // If signup is successful, check if a profile already exists before creating one
         if (data.user) {
-          const { error: profileError } = await supabase.from("profiles").insert({
-            id: data.user.id,
-            nome: nome,
-            role: "aluno", // Set default role to 'aluno'
-          });
-          if (profileError) throw profileError;
+          const { data: existingProfile, error: fetchProfileError } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("id", data.user.id)
+            .single();
+
+          // If there's an error fetching the profile and it's not just 'no rows found' (PGRST116), throw it
+          if (fetchProfileError && fetchProfileError.code !== 'PGRST116') {
+            throw fetchProfileError;
+          }
+
+          // Only insert the profile if it doesn't already exist
+          if (!existingProfile) {
+            const { error: profileError } = await supabase.from("profiles").insert({
+              id: data.user.id,
+              nome: nome,
+              role: "aluno", // Set default role to 'aluno'
+            });
+            if (profileError) throw profileError;
+          }
         }
         
         toast.success("Conta criada com sucesso! Bem-vindo(a) ao JourneyApp.");
