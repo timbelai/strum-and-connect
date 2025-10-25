@@ -7,10 +7,8 @@ import { LogOut, MessageSquare, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import RegisterStudyDialog from "@/components/RegisterStudyDialog";
-import FloatingAgendaButton from "@/components/FloatingAgendaButton";
-import FloatingRegisterStudyButton from "@/components/FloatingRegisterStudyButton";
-import FloatingMoreActionsMenu from "@/components/FloatingMoreActionsMenu";
-import AgendaFeedDrawer from "@/components/AgendaFeedDrawer"; // Importar o novo componente
+import FloatingActionButtons from "@/components/FloatingActionButtons"; // Importar o novo componente
+import AgendaFeedDrawer from "@/components/AgendaFeedDrawer";
 
 interface Profile {
   id: string;
@@ -32,7 +30,7 @@ const Home = () => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRegisterStudyDialogOpen, setIsRegisterStudyDialogOpen] = useState(false);
-  const [isAgendaDrawerOpen, setIsAgendaDrawerOpen] = useState(false); // Novo estado para o Drawer da Agenda
+  const [isAgendaDrawerOpen, setIsAgendaDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -210,9 +208,10 @@ const Home = () => {
       </main>
 
       {/* Floating Action Buttons */}
-      <FloatingAgendaButton onOpenAgenda={() => setIsAgendaDrawerOpen(true)} />
-      <FloatingRegisterStudyButton onRegisterStudyClick={() => setIsRegisterStudyDialogOpen(true)} />
-      <FloatingMoreActionsMenu profileRole={profile?.role} />
+      <FloatingActionButtons
+        onRegisterStudyClick={() => setIsRegisterStudyDialogOpen(true)}
+        onOpenAgenda={() => setIsAgendaDrawerOpen(true)}
+      />
 
       {profile && (
         <>
