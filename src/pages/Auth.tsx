@@ -8,6 +8,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Music } from "lucide-react";
 
+// Função auxiliar para garantir que o perfil exista
+const ensureProfileExists = async (userId: string, userName: string) => {
+  const { data: existingProfile, error: fetchProfileError } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", userId)
+    .single();
+
+  // Se o erro for diferente de "não encontrado" (PGRST116), lançamos o erro
+  if (fetchProfileError && fetchProfileError.code !== 'PGRST116') {
+    throw fetchProfileError;
+  }
+
+  // Se o perfil não existir, criamos um novo
+  if (!existingProfile) {
+    const { error: profileError } = await supabase.from("profiles").insert({
+      id: userId,
+      nome: userName,
+      role: "aluno", // Set default role to 'aluno'
+    });
+    if (profileError) throw profileError;
+  }
+};
+
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -32,11 +56,18 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
+
+        if (data.user) {
+          // Tenta usar o nome do metadata, se não tiver, usa o email
+          const userName = data.user.user_metadata.nome || email.split('@')[0];
+          await ensureProfileExists(data.user.id, userName);
+        }
+
         toast.success("Login realizado com sucesso!");
         navigate("/");
       } else {
@@ -44,37 +75,17 @@ const Auth = () => {
           email,
           password,
           options: {
-            data: { nome }, // Keep nome in user_metadata for initial signup
+            data: { nome },
           },
         });
         if (signUpError) throw signUpError;
 
-        // If signup is successful, check if a profile already exists before creating one
         if (data.user) {
-          const { data: existingProfile, error: fetchProfileError } = await supabase
-            .from("profiles")
-            .select("id")
-            .eq("id", data.user.id)
-            .single();
-
-          // If there's an error fetching the profile and it's not just 'no rows found' (PGRST116), throw it
-          if (fetchProfileError && fetchProfileError.code !== 'PGRST116') {
-            throw fetchProfileError;
-          }
-
-          // Only insert the profile if it doesn't already exist
-          if (!existingProfile) {
-            const { error: profileError } = await supabase.from("profiles").insert({
-              id: data.user.id,
-              nome: nome,
-              role: "aluno", // Set default role to 'aluno'
-            });
-            if (profileError) throw profileError;
-          }
+          await ensureProfileExists(data.user.id, nome);
         }
         
         toast.success("Conta criada com sucesso! Bem-vindo(a) ao JourneyApp.");
-        navigate("/"); // Redirect directly to home page
+        navigate("/");
       }
     } catch (error: any) {
       toast.error(error.message || "Erro na autenticação");
