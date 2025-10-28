@@ -7,7 +7,7 @@ import { LogOut, MessageSquare, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import RegisterStudyDialog from "@/components/RegisterStudyDialog";
-import FloatingActionButtons from "@/components/FloatingActionButtons"; // Importar o novo componente
+import FloatingActionButtons from "@/components/FloatingActionButtons";
 import AgendaFeedDrawer from "@/components/AgendaFeedDrawer";
 
 interface Profile {
@@ -59,7 +59,7 @@ const Home = () => {
       }
 
       setProfile(data);
-      await createDefaultGroups();
+      // A criação de grupos padrão agora é feita via migração SQL.
       await fetchGroups();
     } catch (error) {
       console.error("Auth or data fetch error:", error);
@@ -67,37 +67,6 @@ const Home = () => {
       navigate("/auth");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const defaultGroupNames = ["Bate-Papo", "Dúvidas", "Edificação", "Caravanas"];
-
-  const createDefaultGroups = async () => {
-    const { data: existingGroups, error: fetchError } = await supabase
-      .from("groups")
-      .select("nome");
-
-    if (fetchError) {
-      console.error("Error fetching existing groups:", fetchError);
-      return;
-    }
-
-    const existingGroupNames = new Set(existingGroups?.map(g => g.nome));
-    const groupsToInsert = defaultGroupNames
-      .filter(name => !existingGroupNames.has(name))
-      .map(name => ({ nome: name, descricao: `Grupo para ${name.toLowerCase()}` }));
-
-    if (groupsToInsert.length > 0) {
-      const { error: insertError } = await supabase
-        .from("groups")
-        .insert(groupsToInsert);
-
-      if (insertError) {
-        console.error("Error inserting default groups:", insertError);
-        toast.error("Erro ao criar grupos padrão.");
-      } else {
-        toast.success("Grupos padrão criados!");
-      }
     }
   };
 
