@@ -84,11 +84,11 @@ const ProfileEdit = () => {
 
   const uploadAvatar = async (file: File, userId: string) => {
     const fileExt = file.name.split(".").pop();
-    const fileName = `${userId}-${Date.now()}.${fileExt}`;
-    const filePath = `avatars/${fileName}`;
+    // O caminho do arquivo é apenas o nome do arquivo dentro do bucket 'avatars'
+    const filePath = `${userId}-${Date.now()}.${fileExt}`; 
 
     const { error: uploadError } = await supabase.storage
-      .from("avatars") // Certifique-se de que este bucket existe no Supabase
+      .from("avatars") // O bucket 'avatars'
       .upload(filePath, file, {
         cacheControl: "3600",
         upsert: false,
@@ -113,16 +113,32 @@ const ProfileEdit = () => {
       let newAvatarUrl = avatarUrl;
 
       if (avatarFile) {
-        // Delete old avatar if it exists and is from Supabase Storage
-        if (avatarUrl && avatarUrl.includes(supabase.storage.from("avatars").getPublicUrl("").data.publicUrl)) {
-          const oldFileName = avatarUrl.split("/").pop();
-          if (oldFileName) {
-            await supabase.storage.from("avatars").remove([`avatars/${oldFileName}`]);
+        // 1. Excluir avatar antigo, se existir e for do Supabase Storage
+        if (avatarUrl) {
+          const { data: baseUrlData } = supabase.storage.from("avatars").getPublicUrl("");
+          const baseUrl = baseUrlData.publicUrl.replace(/\/$/, '');
+          
+          if (avatarUrl.startsWith(baseUrl)) {
+            // Extrai o caminho do arquivo (o que vem depois da base URL)
+            const filePathToRemove = avatarUrl.substring(baseUrl.length + 1); 
+            
+            if (filePathToRemove) {
+              // O método remove espera o caminho do arquivo dentro do bucket
+              const { error: removeError } = await supabase.storage.from("avatars").remove([filePathToRemove]);
+              
+              if (removeError) {
+                console.warn("Could not remove old avatar:", removeError.message);
+                // Apenas loga o aviso, mas continua com o upload
+              }
+            }
           }
         }
+        
+        // 2. Fazer upload do novo avatar
         newAvatarUrl = await uploadAvatar(avatarFile, userId);
       }
 
+      // 3. Atualizar perfil no banco de dados
       const { error } = await supabase
         .from("profiles")
         .update({
