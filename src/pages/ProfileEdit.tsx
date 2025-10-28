@@ -71,6 +71,11 @@ const ProfileEdit = () => {
       });
       setAvatarUrl(data.avatar_url);
     }
+    
+    // Log de debug para verificar a URL base do Storage
+    const { data: debugUrlData } = supabase.storage.from("avatars").getPublicUrl("");
+    console.log("Supabase Storage Base URL for 'avatars':", debugUrlData.publicUrl);
+    
     setLoading(false);
   };
 
