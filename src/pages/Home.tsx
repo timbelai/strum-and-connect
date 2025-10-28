@@ -37,6 +37,54 @@ const Home = () => {
     checkAuthAndFetchGroups();
   }, []);
 
+  const fetchGroups = async () => {
+    const { data, error } = await supabase.from("groups").select("*").order("created_at", { ascending: false });
+    if (error) {
+      toast.error("Erro ao carregar grupos");
+      return [];
+    }
+    return data || [];
+  };
+
+  const ensureUserIsMemberOfAllGroups = async (userId: string, allGroups: Group[]) => {
+    if (allGroups.length === 0) return;
+
+    // 1. Fetch current memberships
+    const { data: currentMemberships, error: fetchError } = await supabase
+      .from("group_members")
+      .select("group_id")
+      .eq("user_id", userId);
+
+    if (fetchError) {
+      console.error("Error fetching memberships:", fetchError);
+      return;
+    }
+
+    const memberGroupIds = new Set(currentMemberships?.map(m => m.group_id));
+
+    // 2. Identify missing memberships
+    const membershipsToInsert = allGroups
+      .filter(group => !memberGroupIds.has(group.id))
+      .map(group => ({
+        group_id: group.id,
+        user_id: userId,
+      }));
+
+    // 3. Insert missing memberships
+    if (membershipsToInsert.length > 0) {
+      const { error: insertError } = await supabase
+        .from("group_members")
+        .insert(membershipsToInsert);
+
+      if (insertError) {
+        console.error("Error inserting new memberships:", insertError);
+        // We don't toast an error here as it's a background operation, but log it.
+      } else {
+        console.log(`User joined ${membershipsToInsert.length} new groups.`);
+      }
+    }
+  };
+
   const checkAuthAndFetchGroups = async () => {
     setLoading(true);
     try {
@@ -46,21 +94,26 @@ const Home = () => {
         return;
       }
 
-      const { data, error } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
         .single();
 
-      if (error) {
-        console.error("Profile not found, redirecting to auth:", error);
+      if (profileError) {
+        console.error("Profile not found, redirecting to auth:", profileError);
         navigate("/auth");
         return;
       }
 
-      setProfile(data);
-      // A criação de grupos padrão agora é feita via migração SQL.
-      await fetchGroups();
+      setProfile(profileData);
+      
+      const fetchedGroups = await fetchGroups();
+      setGroups(fetchedGroups);
+
+      // Garantir que o usuário seja membro de todos os grupos
+      await ensureUserIsMemberOfAllGroups(user.id, fetchedGroups);
+
     } catch (error) {
       console.error("Auth or data fetch error:", error);
       toast.error("Erro ao carregar dados. Tente novamente.");
@@ -70,39 +123,16 @@ const Home = () => {
     }
   };
 
-  const fetchGroups = async () => {
-    const { data, error } = await supabase.from("groups").select("*").order("created_at", { ascending: false });
-    if (error) {
-      toast.error("Erro ao carregar grupos");
-      return;
-    }
-    setGroups(data || []);
-  };
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
   };
 
+  // A função joinGroup agora é redundante para grupos existentes, mas mantida para novos grupos
   const joinGroup = async (groupId: string) => {
     if (!profile) return;
     
-    const { error } = await supabase.from("group_members").insert({
-      group_id: groupId,
-      user_id: profile.id,
-    });
-
-    if (error) {
-      if (error.code === "23505") {
-        toast.info("Você já está neste grupo");
-        navigate(`/chat/${groupId}`);
-      } else {
-        toast.error("Erro ao entrar no grupo");
-      }
-      return;
-    }
-
-    toast.success("Você entrou no grupo!");
+    // Como o usuário já deve ser membro, apenas navegamos para o chat
     navigate(`/chat/${groupId}`);
   };
 
