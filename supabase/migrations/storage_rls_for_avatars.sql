@@ -1,6 +1,3 @@
--- Habilita RLS no bucket 'avatars' (se já não estiver habilitado)
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
-
 -- 1. Política para permitir que usuários autenticados façam upload (INSERT)
 -- Permite que um usuário insira um arquivo no bucket 'avatars'
 CREATE POLICY "Allow authenticated users to upload avatars"
