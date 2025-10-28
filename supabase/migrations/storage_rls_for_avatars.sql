@@ -1,9 +1,10 @@
 -- 1. Política para permitir que usuários autenticados façam upload (INSERT)
 -- Permite que um usuário insira um arquivo no bucket 'Jornadapp'
+-- A verificação de 'owner' é removida do WITH CHECK, pois o owner é definido automaticamente pelo Supabase após o upload.
 CREATE POLICY "Allow authenticated users to upload avatars"
 ON storage.objects FOR INSERT
 TO authenticated
-WITH CHECK (bucket_id = 'Jornadapp' AND auth.uid() = owner);
+WITH CHECK (bucket_id = 'Jornadapp');
 
 -- 2. Política para permitir que todos leiam (SELECT) os avatares
 -- Permite que qualquer pessoa leia (visualize) os arquivos no bucket 'Jornadapp'
