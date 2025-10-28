@@ -68,10 +68,13 @@ const Chat = () => {
       .eq("group_id", groupId!)
       .order("created_at", { ascending: true });
 
+    // Removendo a verificação de erro e o toast
     if (error) {
-      toast.error("Erro ao carregar mensagens");
-      return;
+      console.error("Error fetching messages:", error);
+      // Se houver um erro, o componente não deve travar, mas o erro deve ser logado.
+      // Se o erro for RLS, o Supabase lançará um erro no console.
     }
+    
     setMessages(data || []);
   };
 
