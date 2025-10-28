@@ -73,8 +73,8 @@ const ProfileEdit = () => {
     }
     
     // Log de debug para verificar a URL base do Storage
-    const { data: debugUrlData } = supabase.storage.from("avatars").getPublicUrl("");
-    console.log("Supabase Storage Base URL for 'avatars':", debugUrlData.publicUrl);
+    const { data: debugUrlData } = supabase.storage.from("Jornadapp").getPublicUrl("");
+    console.log("Supabase Storage Base URL for 'Jornadapp':", debugUrlData.publicUrl);
     
     setLoading(false);
   };
@@ -89,11 +89,11 @@ const ProfileEdit = () => {
 
   const uploadAvatar = async (file: File, userId: string) => {
     const fileExt = file.name.split(".").pop();
-    // O caminho do arquivo é apenas o nome do arquivo dentro do bucket 'avatars'
+    // O caminho do arquivo é apenas o nome do arquivo dentro do bucket 'Jornadapp'
     const filePath = `${userId}-${Date.now()}.${fileExt}`; 
 
     const { error: uploadError } = await supabase.storage
-      .from("avatars") // O bucket 'avatars'
+      .from("Jornadapp") // O bucket 'Jornadapp'
       .upload(filePath, file, {
         cacheControl: "3600",
         upsert: false,
@@ -104,7 +104,7 @@ const ProfileEdit = () => {
     }
 
     const { data: publicUrlData } = supabase.storage
-      .from("avatars")
+      .from("Jornadapp")
       .getPublicUrl(filePath);
     
     return publicUrlData.publicUrl;
@@ -120,7 +120,7 @@ const ProfileEdit = () => {
       if (avatarFile) {
         // 1. Excluir avatar antigo, se existir e for do Supabase Storage
         if (avatarUrl) {
-          const { data: baseUrlData } = supabase.storage.from("avatars").getPublicUrl("");
+          const { data: baseUrlData } = supabase.storage.from("Jornadapp").getPublicUrl("");
           const baseUrl = baseUrlData.publicUrl.replace(/\/$/, '');
           
           if (avatarUrl.startsWith(baseUrl)) {
@@ -129,7 +129,7 @@ const ProfileEdit = () => {
             
             if (filePathToRemove) {
               // O método remove espera o caminho do arquivo dentro do bucket
-              const { error: removeError } = await supabase.storage.from("avatars").remove([filePathToRemove]);
+              const { error: removeError } = await supabase.storage.from("Jornadapp").remove([filePathToRemove]);
               
               if (removeError) {
                 console.warn("Could not remove old avatar:", removeError.message);
