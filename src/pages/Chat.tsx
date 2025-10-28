@@ -106,16 +106,12 @@ const Chat = () => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    const { error } = await supabase.from("messages").insert({
+    // Removendo a verificação de erro e o toast
+    await supabase.from("messages").insert({
       group_id: groupId!,
       user_id: currentUserId,
       content: newMessage.trim(),
     });
-
-    if (error) {
-      toast.error("Erro ao enviar mensagem");
-      return;
-    }
 
     setNewMessage("");
   };
