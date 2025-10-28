@@ -30,7 +30,7 @@ const Chat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    checkMembership();
+    initializeChat();
     fetchMessages();
     subscribeToMessages();
   }, [groupId]);
@@ -39,7 +39,7 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
-  const checkMembership = async () => {
+  const initializeChat = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       navigate("/auth");
@@ -54,19 +54,8 @@ const Chat = () => {
       .eq("id", groupId!)
       .single();
     if (groupData) setGroupName(groupData.nome);
-
-    // Check if user is member
-    const { data: membership } = await supabase
-      .from("group_members")
-      .select("*")
-      .eq("group_id", groupId!)
-      .eq("user_id", user.id)
-      .single();
-
-    if (!membership) {
-      toast.error("Você não é membro deste grupo");
-      navigate("/");
-    }
+    
+    // NOTA: A verificação de associação ao grupo foi removida para permitir acesso livre.
   };
 
   const fetchMessages = async () => {
