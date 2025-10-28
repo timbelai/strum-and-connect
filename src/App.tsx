@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
+import ProfessorAuth from "./pages/ProfessorAuth"; // Importar a nova página
 import Chat from "./pages/Chat";
 import Tasks from "./pages/Tasks";
 import Meetings from "./pages/Meetings";
@@ -22,9 +23,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/professor-auth" element={<ProfessorAuth />} /> {/* Nova Rota */}
           <Route path="/chat/:groupId" element={<Chat />} />
           <Route path="/tasks" element={<Tasks />} />
-          {/* <Route path="/submit-task" element={<SubmitTask />} /> */} {/* Rota removida */}
           <Route path="/meetings" element={<Meetings />} />
           <Route path="/profile-edit" element={<ProfileEdit />} />
           <Route path="*" element={<NotFound />} />
